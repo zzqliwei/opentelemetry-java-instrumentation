@@ -96,7 +96,9 @@ abstract class SmokeTest {
     client
         .newCall(
             new Request.Builder()
-                .url(String.format("http://localhost:%d/clear", backend.getMappedPort(8080)))
+                .url(
+                    String.format(
+                        "http://%s:%d/clear", backend.getHost(), backend.getMappedPort(8080)))
                 .build())
         .execute()
         .close();
@@ -156,8 +158,7 @@ abstract class SmokeTest {
         .map(
             it -> {
               ExportTraceServiceRequest.Builder builder = ExportTraceServiceRequest.newBuilder();
-              // TODO(anuraaga): Register parser into object mapper to avoid de -> re ->
-              // deserialize.
+              // TODO: Register parser into object mapper to avoid de -> re -> deserialize.
               try {
                 JsonFormat.parser().merge(OBJECT_MAPPER.writeValueAsString(it), builder);
               } catch (InvalidProtocolBufferException | JsonProcessingException e) {
@@ -176,7 +177,9 @@ abstract class SmokeTest {
 
       Request request =
           new Request.Builder()
-              .url(String.format("http://localhost:%d/get-traces", backend.getMappedPort(8080)))
+              .url(
+                  String.format(
+                      "http://%s:%d/get-traces", backend.getHost(), backend.getMappedPort(8080)))
               .build();
 
       try (ResponseBody body = client.newCall(request).execute().body()) {
