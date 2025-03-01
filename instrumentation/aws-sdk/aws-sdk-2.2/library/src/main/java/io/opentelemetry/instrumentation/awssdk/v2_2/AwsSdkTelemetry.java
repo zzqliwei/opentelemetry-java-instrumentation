@@ -8,6 +8,12 @@ package io.opentelemetry.instrumentation.awssdk.v2_2;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.AwsSdkInstrumenterFactory;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.Response;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.SqsImpl;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.SqsProcessRequest;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.SqsReceiveRequest;
+import io.opentelemetry.instrumentation.awssdk.v2_2.internal.TracingExecutionInterceptor;
 import io.opentelemetry.javaagent.tooling.muzzle.NoMuzzle;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -48,6 +54,8 @@ public class AwsSdkTelemetry {
   private final Instrumenter<SqsReceiveRequest, Response> consumerReceiveInstrumenter;
   private final Instrumenter<SqsProcessRequest, Response> consumerProcessInstrumenter;
   private final Instrumenter<ExecutionAttributes, Response> producerInstrumenter;
+  private final Instrumenter<ExecutionAttributes, Response> dynamoDbInstrumenter;
+  private final Instrumenter<ExecutionAttributes, Response> bedrockRuntimeInstrumenter;
   private final boolean captureExperimentalSpanAttributes;
   @Nullable private final TextMapPropagator messagingPropagator;
   private final boolean useXrayPropagator;
@@ -78,6 +86,8 @@ public class AwsSdkTelemetry {
     this.consumerReceiveInstrumenter = instrumenterFactory.consumerReceiveInstrumenter();
     this.consumerProcessInstrumenter = instrumenterFactory.consumerProcessInstrumenter();
     this.producerInstrumenter = instrumenterFactory.producerInstrumenter();
+    this.dynamoDbInstrumenter = instrumenterFactory.dynamoDbInstrumenter();
+    this.bedrockRuntimeInstrumenter = instrumenterFactory.bedrockRuntimeInstrumenter();
     this.captureExperimentalSpanAttributes = captureExperimentalSpanAttributes;
     this.recordIndividualHttpError = recordIndividualHttpError;
   }
@@ -92,6 +102,8 @@ public class AwsSdkTelemetry {
         consumerReceiveInstrumenter,
         consumerProcessInstrumenter,
         producerInstrumenter,
+        dynamoDbInstrumenter,
+        bedrockRuntimeInstrumenter,
         captureExperimentalSpanAttributes,
         messagingPropagator,
         useXrayPropagator,
